@@ -1,17 +1,38 @@
 package edu.uchicago.teamyelp;
 
+import android.content.res.AssetManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 
 public class yelpActivity extends ActionBarActivity {
+
+    //Yelp API Keys
+    private String mConsumerKey;
+    private String mConsumerSecret;
+    private String mToken;
+    private String mTokenSecret;
+    private String mKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_yelp);
+        setContentView(R.layout.activity_ye
+
+
+
+        //Get Yelp API Keys from keys.properties
+        mConsumerKey = getKey("Consumer_Key");
+        mConsumerSecret = getKey("Consumer_Secret");
+        mToken = getKey("Token");
+        mTokenSecret = getKey("Token_Secret");
+        mKey = getKey("Key");
     }
 
     @Override
@@ -34,5 +55,19 @@ public class yelpActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getKey(String strKey) {
+        AssetManager assetManager = this.getResources().getAssets();
+        Properties properties = new Properties();
+
+        try {
+            InputStream inputStream = assetManager.open("keys.properties");
+            properties.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return properties.getProperty(strKey);
     }
 }
