@@ -23,7 +23,7 @@ public class yelpActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ye
+        setContentView(R.layout.activity_yelp);
 
 
 
@@ -33,6 +33,7 @@ public class yelpActivity extends ActionBarActivity {
         mToken = getKey("Token");
         mTokenSecret = getKey("Token_Secret");
         mKey = getKey("Key");
+
     }
 
     @Override
