@@ -19,6 +19,7 @@ public class yelpActivity extends ActionBarActivity {
     private String mToken;
     private String mTokenSecret;
     private String mKey;
+    private Yelp yelp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,4 +72,22 @@ public class yelpActivity extends ActionBarActivity {
 
         return properties.getProperty(strKey);
     }
+
+    public void search(String term, double latitude, double longitude) {
+        // Update tokens here from Yelp developers site, Manage API access.
+        String consumerKey = mConsumerKey;
+        String consumerSecret = mConsumerSecret;
+        String token = mToken;
+        String tokenSecret = mTokenSecret;
+
+        Yelp yelp = new Yelp(consumerKey, consumerSecret, token, tokenSecret);
+        String response = yelp.search(term, latitude, longitude); //example
+
+        System.out.println(response);
+    }
+
+
+
+
+
 }
