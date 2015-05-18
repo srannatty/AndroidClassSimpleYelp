@@ -65,16 +65,16 @@ public class Yelp {
         request.addQuerystringParameter("term", term);
         request.addQuerystringParameter("ll", latitude + "," + longitude);
         this.service.signRequest(this.accessToken, request);
+
+        //the line where Android seem to be having problem?
         Response response = request.send();
         return response.getBody();
     }
 
 
-
     // makes String JSON into GSON object
     // precisely, using GSON to convert JSON into Java Object, YelpSearchResult
     public YelpSearchResult makingGSON(String rawData) {
-
         YelpSearchResult places = new Gson().fromJson(rawData, YelpSearchResult.class);
         return places;
     }
