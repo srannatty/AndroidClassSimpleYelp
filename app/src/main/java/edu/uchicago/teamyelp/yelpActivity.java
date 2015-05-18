@@ -78,26 +78,46 @@ public class yelpActivity extends AppCompatActivity {
         //registerForContextMenu(mListView);
 
         //Button behavior for Search
+        /*
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mTerm = "burritos";
-                mLatitude = 30.361471;
-                mLongitude = -87.164326;
-
-                mYelpData = search(mTerm, mLatitude, mLongitude);
-                setAdapter(mYelpData);
+                setTerm("burritos");
+                setLatitude(30.361471);
+                setLongitude(-87.164326);
+                setAdapter(search("burritos", 30.361471, -87.164326));
                 mListView.setAdapter(mAdapter);
             }
         });
+        */
 
+        mTerm = "burritos";
+        mLatitude = 30.361471;
+        mLongitude = -87.164326;
+
+        mYelpData = search(mTerm, mLatitude, mLongitude);
+        setAdapter(mYelpData);
+        mListView.setAdapter(mAdapter);
     }
 
 
     public void setAdapter(YelpSearchResult data) {
-        List<Business> businessesList = mYelpData.getBusinesses();
+        List<Business> businessesList = data.getBusinesses();
         mAdapter = new ArrayAdapter<Business>(this, R.layout.yelp_row, businessesList);
     }
+
+    public void setTerm(String term) {
+        this.mTerm = term;
+    }
+
+    public void setLatitude(double latitude) {
+        mLatitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        mLongitude = longitude;
+    }
+
 
     //Update list view. Should be used after using search.
     public void updateListView() {
