@@ -7,12 +7,19 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
+import com.yelp.v2.Business;
+import com.yelp.v2.YelpSearchResult;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 
@@ -28,14 +35,21 @@ public class yelpActivity extends AppCompatActivity {
 
     //Jennifer Edit: List View things
     private ListView mListView;
-    private SimpleCursorAdapter mAdapter;
+    private ArrayAdapter<Business> mAdapter;
 
 
-    //Layout Stuff
-    private EditText mTerm;
-    private EditText mLatitude;
-    private EditText mLongitude;
+    //Layout Stuffs:
+    private EditText mSearchTerm;
+    private EditText mSearchLatitude;
+    private EditText mSearchLongitude;
 
+    private String mTerm;
+    private double mLatitude;
+    private double mLongitude;
+
+    private Button mSearchButton;
+
+    private YelpSearchResult mYelpData;
 
 
     @Override
@@ -48,60 +62,52 @@ public class yelpActivity extends AppCompatActivity {
         mConsumerSecret = getKey("Consumer_Secret");
         mToken = getKey("Token");
         mTokenSecret = getKey("Token_Secret");
+        //Don't really need this
         mKey = getKey("Key");
+
+        //Get Layout Setup
+        mSearchTerm = (EditText) findViewById(R.id.SearchTerm);
+        mSearchLatitude = (EditText) findViewById(R.id.SearchLatitude);
+        mSearchLongitude = (EditText) findViewById(R.id.SearchLongitude);
+
+        mSearchButton = (Button) findViewById(R.id.SearchButton);
 
         mListView = (ListView) findViewById(R.id.yelp_list_view);
         mListView.setDivider(null);
-        //Register Context Menu
-        registerForContextMenu(mListView);
+        //Register Context Menu  --> Is this necessary?
+        //registerForContextMenu(mListView);
 
-        String[] fromColumns = new String[]{
-                //Todo Way to initiate this?
-                //RemindersDbAdapter.COL_CONTENT
-                ""
-        };
+        //Button behavior for Search
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mTerm = mSearchTerm.getText().toString();
+                mLatitude = Double.parseDouble(mSearchLatitude.getText().toString());
+                mLongitude = Double.parseDouble(mSearchLongitude.getText().toString());
 
-        int[] toView = new int[]{
-                R.id.row_text
-        };
+                mYelpData = search(mTerm, mLatitude, mLongitude);
+                setAdapter(mYelpData);
+                mListView.setAdapter(mAdapter);
+            }
+        });
 
-        // Create an empty adapter we will use to display the loaded data.
-        // We pass null for the cursor, then update it in onLoadFinished()
-        //API 11 required to use SimpleCursorAdapter
-        mAdapter = new SimpleCursorAdapter(
-                //context
-                this,
-                //layout
-                R.layout.yelp_row,
-                //cursor
-                null,
-                //from columns? defined
-                fromColumns,
-                //to the ids of view in layout
-                toView,
-                //flag, not used
-                0);
-        //the cursorAdapter (controller) is now updating the listView (view) with data from the db (model)
-        mListView.setAdapter(mAdapter);
     }
 
-    //todo: Create cursor using data given by response
-    public Cursor CreateCursor(String response) {
-        Cursor cursor;
-        return cursor;
+
+    public void setAdapter(YelpSearchResult data) {
+        List<Business> businessesList = mYelpData.getBusinesses();
+        mAdapter = new ArrayAdapter<Business>(this, R.layout.yelp_row, businessesList);
     }
 
     //Update list view. Should be used after using search.
-    public void updateListView(Cursor cursor) {
-        mAdapter.changeCursor(cursor);
+    public void updateListView() {
         mAdapter.notifyDataSetChanged();
         mListView.invalidateViews();
         mListView.refreshDrawableState();
     }
 
 
-
-    public void search(String term, double latitude, double longitude) {
+    public YelpSearchResult search(String term, double latitude, double longitude) {
         // Update tokens here from Yelp developers site, Manage API access.
         String consumerKey = mConsumerKey;
         String consumerSecret = mConsumerSecret;
@@ -110,8 +116,7 @@ public class yelpActivity extends AppCompatActivity {
 
         Yelp yelp = new Yelp(consumerKey, consumerSecret, token, tokenSecret);
         String response = yelp.search(term, latitude, longitude); //example
-
-        System.out.println(response);
+        return yelp.makingGSON(response);
     }
 
 
