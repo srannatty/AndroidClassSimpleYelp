@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -28,6 +29,12 @@ public class yelpActivity extends AppCompatActivity {
     //Jennifer Edit: List View things
     private ListView mListView;
     private SimpleCursorAdapter mAdapter;
+
+
+    //Layout Stuff
+    private EditText mTerm;
+    private EditText mLatitude;
+    private EditText mLongitude;
 
 
 
@@ -80,7 +87,8 @@ public class yelpActivity extends AppCompatActivity {
 
     //todo: Create cursor using data given by response
     public Cursor CreateCursor(String response) {
-        Cursor cursor = new Cursor();
+        Cursor cursor;
+        return cursor;
     }
 
     //Update list view. Should be used after using search.
@@ -142,13 +150,5 @@ public class yelpActivity extends AppCompatActivity {
 
         return properties.getProperty(strKey);
     }
-
-
-
-
-
-
-
-
 
 }

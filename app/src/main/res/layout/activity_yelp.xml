@@ -23,8 +23,28 @@
             android:hint="@string/enterSearch"
             android:paddingBottom="4dp"
             android:paddingLeft="4dp"
-            android:textSize="20sp"
-            ></EditText>
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/SearchLatitude"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="#AAA"
+            android:hint="Latitude"
+            android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/SearchLongitude"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="#AAA"
+            android:hint="Longitude"
+            android:paddingBottom="4dp"
+            android:paddingLeft="4dp"
+            android:textSize="20sp" />
+
         <Button
             android:id="@+id/Search"
             android:text="@string/search_button"
