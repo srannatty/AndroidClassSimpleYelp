@@ -3,4 +3,6 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="enterSearch">Search restaurant</string>
+    <string name="search_button">Search</string>
 </resources>
