@@ -81,9 +81,9 @@ public class yelpActivity extends AppCompatActivity {
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mTerm = mSearchTerm.getText().toString();
-                mLatitude = Double.parseDouble(mSearchLatitude.getText().toString());
-                mLongitude = Double.parseDouble(mSearchLongitude.getText().toString());
+                mTerm = "burritos";
+                mLatitude = 30.361471;
+                mLongitude = -87.164326;
 
                 mYelpData = search(mTerm, mLatitude, mLongitude);
                 setAdapter(mYelpData);
