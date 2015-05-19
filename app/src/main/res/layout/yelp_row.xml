@@ -17,10 +17,10 @@
             android:id="@+id/row_tab" />
 
         <TextView
+            android:id="@+id/row_text"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:text="Yelp Text"
-            android:id="@+id/row_text"
+            android:text="@string/business_name"
             android:textSize="18sp"
             android:gravity="center_vertical"
             android:padding="10dp"
