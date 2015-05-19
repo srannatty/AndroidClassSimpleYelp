@@ -1,23 +1,20 @@
 package edu.uchicago.teamyelp;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
-
-import com.google.gson.Gson;
 import com.yelp.v2.Business;
 import com.yelp.v2.YelpSearchResult;
 
@@ -26,17 +23,12 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
-import org.scribe.builder.ServiceBuilder;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
-import org.scribe.model.Token;
-import org.scribe.model.Verb;
-import org.scribe.oauth.OAuthService;
+
 
 
 public class yelpActivity extends AppCompatActivity {
 
-    //Yelp API Keys
+    //Yelp API Keys given by Prof. Gerber
     private static final String mConsumerKey = "dSZgGbpE51gcJ2mPFy8Dag";
     private static final String mConsumerSecret = "CAe7Yp1NEYVPh2Z2ZpDDetqUpWM";
     private static final String mToken = "ksJ-aFEUA-sO8YKI9TwbTem8DoLOOtH0";
@@ -59,11 +51,6 @@ public class yelpActivity extends AppCompatActivity {
     private Button mSearchButton;
 
 
-    private String mTerm;
-    private double mLatitude;
-    private double mLongitude;
-    private YelpSearchResult mResult;
-    private String mRawData;
 
 
     @Override
@@ -82,7 +69,6 @@ public class yelpActivity extends AppCompatActivity {
         mKey = getKey("Key");
         */
 
-
         //Get Layout Setup
         mSearchTerm = (EditText) findViewById(R.id.SearchTerm);
         mSearchLatitude = (EditText) findViewById(R.id.SearchLatitude);
@@ -92,77 +78,54 @@ public class yelpActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.yelp_list_view);
         mListView.setDivider(null);
-        //Register Context Menu  --> Is this necessary?
+        //Register Context Menu  --> Is this necessary? (Comment by Jen)
         //registerForContextMenu(mListView);
-
         //Button behavior for Search
+
+        mYelp = new Yelp(mConsumerKey, mConsumerSecret, mToken, mTokenSecret);
 
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new YelpTask().execute("test");
-//                mYelp.setTerm(mSearchTerm.getText().toString());
-//                mYelp.setLatitude(Double.parseDouble(mSearchLatitude.getText().toString()));
-//                mYelp.setLongitude(Double.parseDouble(mSearchLongitude.getText().toString()));
-//
-//                mYelp.setResult(
-//                        mYelp.makingGSON(
-//                                mYelp.search(mYelp.getTerm(), mYelp.getLatitude(), mYelp.getLongitude())));
-//
-//                setAdapter(mYelp.getResult());
-//                mListView.setAdapter(mAdapter);
-
-
-                //setAdapter(search("burritos", 30.361471, -87.164326));
-             //   mListView.setAdapter(mAdapter);
-
+                new YelpTask().execute("dummy");
+                mListView.setAdapter(mAdapter);
             }
         });
 
-        //setAdapter(mYelp.getResult());
-        //mListView.setAdapter(mAdapter);
     }
 
-    //getters and setters
-    public void setTerm(String term) {
-        this.mTerm = term;
-    }
-
-    public void setLatitude(double latitude) {
-        this.mLatitude = latitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.mLongitude = longitude;
-    }
-
-    public void setResult(YelpSearchResult result) {
-        this.mResult = result;
-    }
-
-    public String getTerm() {
-        return this.mTerm;
-    }
-
-    public double getLatitude() {
-        return this.mLatitude;
-    }
-
-    public double getLongitude() {
-        return this.mLongitude;
-    }
-
-    public YelpSearchResult getResult() {
-        return this.mResult;
-    }
 
 
     //Create Adapter and set it given YelpSearchResult
     public void setAdapter(YelpSearchResult data) {
-        List<Business> businessesList = data.getBusinesses();
+        final List<Business> businessesList = data.getBusinesses();
         mAdapter = new BusinessAdapter(this, businessesList);
-        //Below is before we made BusinessAdapter
-        //ArrayAdapter<Business>(this, R.layout.yelp_row, businessesList);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                final int nId = (int) arg3;
+                Business business = businessesList.get(nId);
+                new AlertDialog.Builder(yelpActivity.this)
+                        .setTitle(business.getName()+" - "+business.getCategories())
+                        .setMessage(business.getLocation().getAddress().toString()+", "+business.getLocation().getCity()+", "+business.getLocation().getStateCode()+", "+business.getLocation().getCountryCode()+" "+business.getLocation().getPostalCode()+" "+business.getPhone())
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // continue with delete
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+            }
+        });
+
     }
 
     //Update list view. Should be used after using search. We might not even need this
@@ -170,17 +133,15 @@ public class yelpActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
         mListView.invalidateViews();
         mListView.refreshDrawableState();
+
+
     }
 
-    // makes String JSON into GSON object
-    // precisely, using GSON to convert JSON into Java Object, YelpSearchResult
-    public YelpSearchResult makingGSON(String rawData) {
-        YelpSearchResult places = new Gson().fromJson(rawData, YelpSearchResult.class);
-        return places;
-    }
+
+
 
     //Returns YelpSearch Result, using the yelp functionality
-    public YelpSearchResult search(String term, double latitude, double longitude) {
+    public String search(String term, double latitude, double longitude) {
         // Update tokens here from Yelp developers site, Manage API access.
         String consumerKey = mConsumerKey;
         String consumerSecret = mConsumerSecret;
@@ -189,7 +150,7 @@ public class yelpActivity extends AppCompatActivity {
 
         Yelp yelp = new Yelp(consumerKey, consumerSecret, token, tokenSecret);
         String response = yelp.search(term, latitude, longitude); //example
-        return makingGSON(response);
+        return response;
     }
 
 
@@ -235,7 +196,7 @@ public class yelpActivity extends AppCompatActivity {
     private class YelpTask extends AsyncTask<String, String, String> {
         private ProgressDialog progressDialog;
 
-
+/*
         @Override
         protected void onPreExecute() {
 
@@ -254,7 +215,7 @@ public class yelpActivity extends AppCompatActivity {
             });
             progressDialog.show();
 
-        }
+        }*/
 
         @Override
         protected String doInBackground(String... params) {
@@ -267,62 +228,13 @@ public class yelpActivity extends AppCompatActivity {
                             mYelp.search(mYelp.getTerm(), mYelp.getLatitude(), mYelp.getLongitude())));
 
             setAdapter(mYelp.getResult());
-            mListView.setAdapter(mAdapter);
+
             return "test";
         }
 
-//        @Override
-//        protected void onPostExecute(JSONObject jsonObject) {
-//            double dCalculated = 0.0;
-//            String strForCode = extractCodeFromCurrency(mCurrencies[mForSpinner.getSelectedItemPosition()]);
-//            String strHomCode = extractCodeFromCurrency(mCurrencies[mHomSpinner.getSelectedItemPosition()]);
-//
-//            String strAmount = mAmountEditText.getText().toString();
-//            try{
-//                if (jsonObject==null){
-//                    throw new JSONException("no data available.");
-//
-//                }
-//                JSONObject jsonRates= jsonObject.getJSONObject(RATES);
-//                if (strHomCode.equalsIgnoreCase("USD")) {
-//                    dCalculated = Double.parseDouble(strAmount) / jsonRates.getDouble(strForCode);
-//                }else if (strForCode.equalsIgnoreCase("USD")){
-//                    dCalculated = Double.parseDouble(strAmount) * jsonRates.getDouble(strHomCode);
-//                }else {
-//                    dCalculated = Double.parseDouble(strAmount) * jsonRates.getDouble(strHomCode) /
-//                            jsonRates.getDouble(strForCode);
-//                }
-//            }
-//            catch(JSONException e) {
-//                Toast.makeText(MainActivity.this, "There's benn a JSON exception: ", Toast.LENGTH_LONG).show();
-//                mConvertedTextView.setText("");
-//                e.printStackTrace();
-//            }
-//            mConvertedTextView.setText(DECIMAL_FORMAT.format(dCalculated)+" "+strHomCode);
-//            progressDialog.dismiss();
-//        }
     }
 
 
-    class RetreiveSearchResults extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... terms) {
-            mYelp = new Yelp(mConsumerKey, mConsumerSecret, mToken, mTokenSecret);
-            mRawData = mYelp.search(terms[0], Double.parseDouble(terms[1]), Double.parseDouble(terms[2]));
-            mResult = makingGSON(mRawData);
-            return mRawData;
 
-        }
-
-
-        @Override
-        protected void onPostExecute(String rawData) {
-            //get result in form of YelpSearchResult
-            //mResult = makingGSON(mRawData)
-            Toast.makeText(yelpActivity.this, rawData, Toast.LENGTH_LONG).show();
-
-        }
-
-
-    }
 }
+
